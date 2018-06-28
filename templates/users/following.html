@@ -7,7 +7,7 @@
       <div class="card user-card">
         <div class="card-inner">
           <div class="image-wrapper">
-            <img src="{{ url_for('static', filename='images/warbler-hero.jpg') }}" alt="" class="card-hero">
+            <img src="{{ followee.header_image_url }}" alt="" class="card-hero"> 
           </div>
           <div class="card-contents">
             <a href="{{ url_for('users_show', user_id=followee.id) }}" class="card-link">
@@ -24,6 +24,7 @@
             </form>
             {% endif %}
           </div>
+          <div id = "bio" ><p>Bio: {{ followee.bio }}</p></div>
         </div>
       </div>
     </div>

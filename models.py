@@ -22,6 +22,15 @@ FollowersFollowee = db.Table(
               db.ForeignKey('users.id', ondelete="cascade")),
     db.CheckConstraint('follower_id != followee_id', name="no_self_follow"))
 
+Like = db.Table(
+    'likes',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('user_id', db.Integer,
+              db.ForeignKey('users.id', ondelete="cascade")),
+    db.Column('message_id', db.Integer,
+              db.ForeignKey('messages.id', ondelete="cascade")),
+)
+
 
 class User(db.Model, UserMixin):
 

@@ -6,7 +6,7 @@
     <div class="card user-card">
       <div>
         <div class="image-wrapper">
-          <img src="{{ url_for('static', filename='images/warbler-hero.jpg') }}" alt="" class="card-hero">
+          <img src="{{ current_user.header_image_url }}" alt="" class="card-hero">
         </div>
         <a href="{{ url_for('users_show', user_id=current_user.id) }}" class="card-link">
           <img src="{{ current_user.image_url }}" alt="Image for {{ current_user.username }}" class="card-image">
