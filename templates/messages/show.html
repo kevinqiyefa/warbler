@@ -29,12 +29,40 @@
           </div>
           <p class="single-message">{{ message.text }}</p>
           <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
-          <div>
-            <button type = "click">Like</button>
-          </div>
+
+          
+            <span class="float-right like"><i class="far fa-thumbs-up mr-3"> </i></span>
+        
         </div>
       </li>
     </ul>
   </div>
 </div>
+
+<script>
+$(".like").click(function(){
+    $("i").toggleClass("far fa-thumbs-up fas fa-thumbs-up");
+    let isLike = $("i").hasClass( "fas fa-thumbs-up" );
+    let method;
+    method = isLike ? 'POST' : 'DELETE';
+    alert(method)
+    $.ajax({
+            url: "{{url_for('like')}}",
+            data: {'data': isLike, 'user_id':"current_user.id", 'message_id': message.id},
+            type: method,
+            success: function(response) {
+                console.log(response);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+});
+
+
+</script>
+
 {% endblock %}
+
+
+

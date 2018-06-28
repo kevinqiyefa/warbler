@@ -523,10 +523,20 @@ nav + .container {
   flex: 1;
 }
 
-#page_404 {
-  margin: 0 auto;
+.page_404 {
+  margin-top: 8em;
 }
 
-#bio {
-  margin-top: 3em;
+#bioinfo {
+  margin: 3em 1em;
+}
+
+.like {
+  font-size: 1.5em;
+  color: #007bff;
+  font-weight: 700;
+}
+
+.like:hover {
+  cursor: pointer;
 }

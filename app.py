@@ -152,7 +152,7 @@ def users_followers(user_id):
 
 @app.route('/users/<int:user_id>', methods=["GET"])
 def users_show(user_id):
-    found_user = User.query.get(user_id)
+    found_user = User.query.get_or_404(user_id)
     return render_template('users/show.html', user=found_user)
 
 
@@ -239,13 +239,28 @@ def messages_destroy(user_id, message_id):
     return redirect(url_for('users_show', user_id=user_id))
 
 
+@app.route('/likes', methods=["POST", "DELETE"])
+def like():
+    isLike = request.form['data']
+    user_id = request.form['user_id']
+    message_id = request.form['message_id']
+    print(user_id)
+    print(message_id)
+
+    if isLike == 'true':
+        print('ddddddd')
+    else:
+        print('oooo')
+    return redirect(
+        url_for('messages_show', user_id=user_id, message_id=message_id))
+
+
 @app.route('/')
 def root():
     messages = []
 
-    followings = [f.id for f in current_user.following]
-
     if current_user.is_authenticated:
+        followings = [f.id for f in current_user.following]
         messages = Message.query.filter(
             or_(
                 Message.user_id.in_(followings),

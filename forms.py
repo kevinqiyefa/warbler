@@ -13,13 +13,10 @@ class UserForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=6)])
     image_url = StringField('(Optional) Image URL')
-
     header_image_url = StringField(
         "Header Image Url",
         validators=[URL(message='Sorry, this is not a valid URL')])
-
-    bio = StringField('Your Story', validators=[Length(min=6)])
-
+    bio = StringField('Your Story', validators=[DataRequired(), Length(min=6)])
     location = StringField('Your Location', validators=[DataRequired()])
 
 
