@@ -119,7 +119,7 @@ def users_logout():
 @app.route('/users/<int:follower_id>/followers', methods=['POST'])
 @login_required
 def followers_create(follower_id):
-    followed = User.query.get(follower_id)
+    followed = User.query.get_or_404(follower_id)
     current_user.following.append(followed)
     db.session.add(current_user)
     db.session.commit()
@@ -129,7 +129,7 @@ def followers_create(follower_id):
 @app.route('/users/<int:follower_id>/followers', methods=['DELETE'])
 @login_required
 def followers_destroy(follower_id):
-    followed = User.query.get(follower_id)
+    followed = User.query.get_or_404(follower_id)
     current_user.following.remove(followed)
     db.session.add(current_user)
     db.session.commit()
@@ -140,14 +140,14 @@ def followers_destroy(follower_id):
 @login_required
 def users_following(user_id):
     return render_template(
-        'users/following.html', user=User.query.get(user_id))
+        'users/following.html', user=User.query.get_or_404(user_id))
 
 
 @app.route('/users/<int:user_id>/followers', methods=['GET'])
 @login_required
 def users_followers(user_id):
     return render_template(
-        'users/followers.html', user=User.query.get(user_id))
+        'users/followers.html', user=User.query.get_or_404(user_id))
 
 
 @app.route('/users/<int:user_id>', methods=["GET"])
@@ -160,7 +160,7 @@ def users_show(user_id):
 @login_required
 @ensure_correct_user
 def users_edit(user_id):
-    found_user = User.query.get(user_id)
+    found_user = User.query.get_or_404(user_id)
     return render_template(
         'users/edit.html',
         form=UserForm(obj=found_user),
@@ -171,7 +171,7 @@ def users_edit(user_id):
 @login_required
 @ensure_correct_user
 def users_update(user_id):
-    found_user = User.query.get(user_id)
+    found_user = User.query.get_or_404(user_id)
     form = UserForm(request.form)
     if form.validate():
         if User.authenticate(found_user.username, form.password.data):
@@ -195,7 +195,7 @@ def users_update(user_id):
 @login_required
 @ensure_correct_user
 def users_destroy(user_id):
-    found_user = User.query.get(user_id)
+    found_user = User.query.get_or_404(user_id)
     db.session.delete(found_user)
     db.session.commit()
     return redirect(url_for('users_new'))
@@ -224,7 +224,7 @@ def messages_new(user_id):
 
 @app.route('/users/<int:user_id>/messages/<int:message_id>', methods=["GET"])
 def messages_show(user_id, message_id):
-    found_message = Message.query.get(message_id)
+    found_message = Message.query.get_or_404(message_id)
     return render_template('messages/show.html', message=found_message)
 
 
@@ -233,26 +233,40 @@ def messages_show(user_id, message_id):
 @login_required
 @ensure_correct_user
 def messages_destroy(user_id, message_id):
-    found_message = Message.query.get(message_id)
+    found_message = Message.query.get_or_404(message_id)
     db.session.delete(found_message)
     db.session.commit()
     return redirect(url_for('users_show', user_id=user_id))
 
 
-@app.route('/likes', methods=["POST", "DELETE"])
+@app.route('/likes', methods=["POST"])
 def like():
+    """Like/unlike a message; this is to be used from AJAX so it does not return a full page."""
+
     isLike = request.form['data']
-    user_id = request.form['user_id']
     message_id = request.form['message_id']
-    print(user_id)
-    print(message_id)
 
     if isLike == 'true':
-        print('ddddddd')
+        message = Message.query.get_or_404(message_id)
+        current_user.likes.append(message)
+        db.session.add(current_user)
+        db.session.commit()
+        return "liked"  # 200 OK
     else:
-        print('oooo')
-    return redirect(
-        url_for('messages_show', user_id=user_id, message_id=message_id))
+        message = Message.query.get_or_404(message_id)
+        current_user.likes.remove(message)
+        db.session.add(current_user)
+        db.session.commit()
+        return "unliked"
+
+
+@app.route('/users/<int:user_id>/likes', methods=["GET"])
+def like_messages_show(user_id):
+
+    found_user = User.query.get_or_404(user_id)
+
+    return render_template(
+        'users/like.html', user=found_user, messages=found_user.likes)
 
 
 @app.route('/')

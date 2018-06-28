@@ -52,6 +52,11 @@ class User(db.Model, UserMixin):
         secondaryjoin=(FollowersFollowee.c.followee_id == id),
         backref=db.backref('following', lazy='dynamic'),
         lazy='dynamic')
+    likes = db.relationship(
+        "Message",
+        secondary=Like,
+        backref=db.backref('likes', lazy='dynamic'),
+        lazy='dynamic')
 
     def __repr__(self):
         return f"User #{self.id}: email: {self.email} - username: {self.username}"
@@ -61,6 +66,12 @@ class User(db.Model, UserMixin):
 
     def is_following(self, user):
         return bool(self.following.filter_by(id=user.id).first())
+
+    def is_like(self, message):
+        return bool(self.likes.filter_by(id=message.id).first())
+
+    def num_likes(self):
+        return len(list(self.likes))
 
     @staticmethod
     def hash_password(plaintext_pw):
@@ -75,3 +86,6 @@ class User(db.Model, UserMixin):
             if is_authenticated:
                 return found_user
         return False
+
+
+db.create_all()

@@ -30,8 +30,13 @@
           <p class="single-message">{{ message.text }}</p>
           <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
 
-          
-            <span class="float-right like"><i class="far fa-thumbs-up mr-3"> </i></span>
+          {% if current_user.is_authenticated %}
+            {% if current_user.is_like(message) %}
+              <span class="float-right like"><i class="fas fa-heart mr-3"> </i></span>
+            {% else %}
+              <span class="float-right like"><i class="far fa-heart mr-3"> </i></span>
+            {% endif %}
+          {% endif %}
         
         </div>
       </li>
@@ -41,15 +46,13 @@
 
 <script>
 $(".like").click(function(){
-    $("i").toggleClass("far fa-thumbs-up fas fa-thumbs-up");
-    let isLike = $("i").hasClass( "fas fa-thumbs-up" );
-    let method;
-    method = isLike ? 'POST' : 'DELETE';
-    alert(method)
+    $("i").toggleClass("far fa-heart fas fa-heart");
+    let isLike = $("i").hasClass( "fas fa-heart" );
+
     $.ajax({
             url: "{{url_for('like')}}",
-            data: {'data': isLike, 'user_id':"current_user.id", 'message_id': message.id},
-            type: method,
+            data: {'data': isLike, 'message_id': '{{ message.id}}'},
+            type: "POST",
             success: function(response) {
                 console.log(response);
             },

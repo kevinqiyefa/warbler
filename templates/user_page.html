@@ -27,7 +27,8 @@
           </li>
           <li class="stat">
             <p class="small">Likes</p>
-            <h4>TBD</h4>
+            <h4>
+                <a href="{{ url_for('like_messages_show', user_id=user.id) }}">{{current_user.num_likes()}}</a></h4>
           </li>
           <div class="ml-auto">
             {% if current_user.id == user.id %}

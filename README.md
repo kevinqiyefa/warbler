@@ -76,26 +76,22 @@ This will create a new set of fake data with which you can seed your database.
 
 There are at LEAST two bugs in the application, but it's not necessarily obvious where it is (there's a hint at the bottom of the readme). This is why testing is so important!
 
-Let's briefly discuss a couple of things related to tests: _how_ you should test, and _what_ you should test. First, let's talk about the how. Your test files should all live inside of a folder called `tests`, and that folder should live inside of your `project` directory. Inside of `tests`, you can organize your files however you see fit. For instance, here's what the file structure might look like with four different test files:
+Let's briefly discuss a couple of things related to tests: _how_ you should test, and _what_ you should test. First, let's talk about the how. You might organize your tests like this:
 
-```sh
-.
-├── tests
-│   ├── test_user_model.py
-│   ├── test_user_controller.py
-│   ├── test_message_model.py
-│   └── test_message_controller.py
-```
+- test_user_model.py
+- test_user_views.py
+- test_message_model.py
+- test_message_views.py
 
-In this case, there are four test files: two for testing the models, and two for testing the routes/controllers.
+In this case, there are four test files: two for testing the models, and two for testing the routes/view-functions.
 
-To run the tests, you can run `green` from the command line (this is one of the requirements in `requirements.txt`). `green` is a test runner that will automatically run all tests inside of the `tests` directory. If you want to only run one file, you can do something like `green tests/NAME_OF_FILE` to run tests for that file only. Note that all of your test files should begin with the word `test`.
+To run a file containing unittests, you can run the command `python -m unittest <name-of-python-file>`.
 
 So that's _how_ you should test. But _what_, exactly, should you be testing? Let's take the above file structure as an example.
 
 For model tests, you can simply verify that models have the attributes you expect, and write tests for any model methods.
 
-For the routing and controller tests, things get a bit more complicated. You should make sure that requests to all the endpoints supported in the `views` files return valid responses. If certain routes are protected, you should make sure that users who are not authenticated or authorized cannot successfully make those requests. Conversely, if they are authenticated or authorized, they should be able to.
+For the routing and view function tests, things get a bit more complicated. You should make sure that requests to all the endpoints supported in the `views` files return valid responses. If certain routes are protected, you should make sure that users who are not authenticated or authorized cannot successfully make those requests. Conversely, if they are authenticated or authorized, they should be able to.
 
 These tests are a bit trickier to write because they require you to make requests in the test, and look through the response in order to verify that the HTML you get back from the server looks correct.
 
