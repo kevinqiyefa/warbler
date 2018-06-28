@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from sqlalchemy.exc import IntegrityError
 from forms import UserForm, LoginForm, MessageForm
 from decorators import ensure_correct_user
+from sqlalchemy import or_
 
 app = Flask(__name__)
 
@@ -20,7 +21,7 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://localhost/warbler_db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = False
+app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or "it's a secret"
@@ -55,7 +56,10 @@ def users_index():
     return render_template('users/index.html', users=users)
 
 
-@app.route('/signup', methods=["GET"])
+@app.route(
+    '/signup', methods=[
+        "GET",
+    ])
 def users_new():
     return render_template('users/signup.html', form=UserForm())
 
@@ -68,7 +72,10 @@ def users_create():
             new_user = User(
                 username=form.username.data,
                 email=form.email.data,
-                password=User.hash_password(form.password.data))
+                password=User.hash_password(form.password.data),
+                header_image_url=form.header_image_url.data,
+                bio=form.bio.data,
+                location=form.location.data)
             if form.image_url.data:
                 new_user.image_url = form.image_url.data
             db.session.add(new_user)
@@ -171,6 +178,9 @@ def users_update(user_id):
             found_user.username = form.username.data
             found_user.email = form.email.data
             found_user.image_url = form.image_url.data or "/static/images/default-pic.png"
+            found_user.bio = form.bio.data
+            found_user.location = form.location.data
+            found_user.header_image_url = form.header_image_url.data
             db.session.add(found_user)
             db.session.commit()
             return redirect(url_for('users_show', user_id=user_id))
@@ -232,10 +242,17 @@ def messages_destroy(user_id, message_id):
 @app.route('/')
 def root():
     messages = []
+
+    followings = [f.id for f in current_user.following]
+
     if current_user.is_authenticated:
-        messages = Message.query.order_by(
-            Message.timestamp.desc()).limit(100).all()
-    return render_template('home.html', messages=messages)
+        messages = Message.query.filter(
+            or_(
+                Message.user_id.in_(followings),
+                Message.user_id == current_user.id)).order_by(
+                    Message.timestamp.desc()).limit(100).all()
+    return render_template(
+        'home.html', messages=messages, current_user=current_user)
 
 
 # https://stackoverflow.com/questions/34066804/disabling-caching-in-flask
@@ -250,3 +267,8 @@ def add_header(r):
     r.headers["Expires"] = "0"
     r.headers['Cache-Control'] = 'public, max-age=0'
     return r
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
