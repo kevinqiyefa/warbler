@@ -1,4 +1,4 @@
-from app import app, db, User
+from app import app, db, User, Message
 import unittest
 
 
@@ -18,7 +18,16 @@ class UserTests(unittest.TestCase):
             image_url="www.google.com/23131.jpg",
             header_image_url="dsasdadsa")
 
-        db.session.add(user1)
+        user2 = User(
+            username='user222',
+            password=User.hash_password('aaaaaa'),
+            location="sdada",
+            email="dsaddsadsasa@gmail.com",
+            bio="dsada",
+            image_url="www.google.com/231321.jpg",
+            header_image_url="dsasdadsa")
+
+        db.session.add_all([user1, user2])
         db.session.commit()
 
     def tearDown(self):
@@ -110,7 +119,7 @@ class UserTests(unittest.TestCase):
         self.assertIn(b'Join Warbler today.', response.data)
         self.assertEqual(200, response.status_code)
 
-    def test_create_message(self):
+    def test_create_show_delete_message(self):
         client = app.test_client()
 
         client.post(
@@ -120,10 +129,32 @@ class UserTests(unittest.TestCase):
 
         response = client.post(
             "/users/1/messages",
-            data=dict(text='user111', user_id=1),
+            data=dict(text='user22111', user_id=1),
             follow_redirects=True)
 
-        self.assertIn(b'user111', response.data)
+        self.assertIn(b'user22111', response.data)
+        self.assertEqual(Message.query.get_or_404(1).text, "user22111")
+
+        response = client.delete("/users/1/messages/1", follow_redirects=True)
+
+        self.assertNotIn(b'user22111', response.data)
+        # check none in db
+
+    def test_follow(self):
+        client = app.test_client()
+
+        client.post(
+            "/login",
+            data=dict(username='user111', password='aaaaaa'),
+            follow_redirects=True)
+
+        response = client.post("/users/2/followers", follow_redirects=True)
+
+        self.assertIn(b"user222", response.data)
+
+        user_1_following = [u.username for u in User.query.get(1).following]
+
+        self.assertIn("user222", user_1_following)
 
 
 if __name__ == '__main__':
