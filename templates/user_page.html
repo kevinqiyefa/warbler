@@ -56,8 +56,11 @@
 <div class="row">
   <div class="col-sm-3">
     <h4 id="sidebar-username">@{{ user.username }}</h4>
-    <h4> Bio: {{ user.bio }}</h4>
-    <h4>Location: {{ user.location }}</h4>
+    <blockquote>
+        <h4>{{ user.bio }}</h4>
+    </blockquote>
+    
+    <h4 id="location">Location: {{ user.location }}</h4>
   </div>
   {% block user_details %}
   {% endblock %}
