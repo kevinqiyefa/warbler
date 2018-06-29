@@ -140,7 +140,7 @@ class UserTests(unittest.TestCase):
         self.assertNotIn(b'user22111', response.data)
         # check none in db
 
-    def test_follow(self):
+    def test_follow_followed(self):
         client = app.test_client()
 
         client.post(
@@ -155,6 +155,10 @@ class UserTests(unittest.TestCase):
         user_1_following = [u.username for u in User.query.get(1).following]
 
         self.assertIn("user222", user_1_following)
+
+        user_2_followers = [u.username for u in User.query.get(2).followers]
+
+        self.assertIn("user111", user_2_followers)
 
 
 if __name__ == '__main__':
