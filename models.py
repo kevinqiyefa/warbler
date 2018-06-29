@@ -44,19 +44,22 @@ class User(db.Model, UserMixin):
     bio = db.Column(db.Text)
     location = db.Column(db.Text)
     password = db.Column(db.Text)
-    messages = db.relationship('Message', backref='user', lazy='dynamic')
+    messages = db.relationship(
+        'Message', backref='user', lazy='dynamic', cascade="all,delete")
     followers = db.relationship(
         "User",
         secondary=FollowersFollowee,
         primaryjoin=(FollowersFollowee.c.follower_id == id),
         secondaryjoin=(FollowersFollowee.c.followee_id == id),
         backref=db.backref('following', lazy='dynamic'),
-        lazy='dynamic')
+        lazy='dynamic',
+        cascade="all,delete")
     likes = db.relationship(
         "Message",
         secondary=Like,
         backref=db.backref('likes', lazy='dynamic'),
-        lazy='dynamic')
+        lazy='dynamic',
+        cascade="all,delete")
 
     def __repr__(self):
         return f"User #{self.id}: email: {self.email} - username: {self.username}"
