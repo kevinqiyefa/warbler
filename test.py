@@ -97,7 +97,7 @@ class UserTests(unittest.TestCase):
                 header_image_url=headerurl),
             follow_redirects=True)
 
-        # self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertIn(b'I have story now', response.data)
         self.assertNotIn(b'no story', response.data)
 
@@ -127,18 +127,29 @@ class UserTests(unittest.TestCase):
             data=dict(username='user111', password='aaaaaa'),
             follow_redirects=True)
 
+        # post a message
         response = client.post(
             "/users/1/messages",
             data=dict(text='user22111', user_id=1),
             follow_redirects=True)
 
+        # checks message shown in the profile page
         self.assertIn(b'user22111', response.data)
+
+        # checks message added to the database
         self.assertEqual(Message.query.get_or_404(1).text, "user22111")
 
+        # delete the message
         response = client.delete("/users/1/messages/1", follow_redirects=True)
 
+        # checks essage not shown in the profile page
         self.assertNotIn(b'user22111', response.data)
-        # check none in db
+
+        # get the list of all messages from the user
+        user_messages_list = [u.text for u in User.query.get(1).messages]
+
+        # check no messages exist in database after delete
+        self.assertNotIn('user22111', user_messages_list)
 
     def test_follow_followed(self):
         client = app.test_client()
