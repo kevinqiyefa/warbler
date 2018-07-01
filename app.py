@@ -139,32 +139,35 @@ def followers_destroy(follower_id):
 @app.route('/users/<int:user_id>/following', methods=['GET'])
 @login_required
 def users_following(user_id):
+    found_user = User.query.get_or_404(user_id)
     return render_template(
-        'users/following.html', user=User.query.get_or_404(user_id))
+        'users/following.html', user=found_user, form=UserForm(obj=found_user))
 
 
 @app.route('/users/<int:user_id>/followers', methods=['GET'])
 @login_required
 def users_followers(user_id):
+    found_user = User.query.get_or_404(user_id)
     return render_template(
-        'users/followers.html', user=User.query.get_or_404(user_id))
+        'users/followers.html', user=found_user, form=UserForm(obj=found_user))
 
 
 @app.route('/users/<int:user_id>', methods=["GET"])
 def users_show(user_id):
     found_user = User.query.get_or_404(user_id)
-    return render_template('users/show.html', user=found_user)
-
-
-@app.route('/users/<int:user_id>/edit')
-@login_required
-@ensure_correct_user
-def users_edit(user_id):
-    found_user = User.query.get_or_404(user_id)
     return render_template(
-        'users/edit.html',
-        form=UserForm(obj=found_user),
-        user_id=found_user.id)
+        'users/show.html', user=found_user, form=UserForm(obj=found_user))
+
+
+# @app.route('/users/<int:user_id>/edit')
+# @login_required
+# @ensure_correct_user
+# def users_edit(user_id):
+#     found_user = User.query.get_or_404(user_id)
+#     return render_template(
+#         'users/edit.html',
+#         form=UserForm(obj=found_user),
+#         user_id=found_user.id)
 
 
 @app.route('/users/<int:user_id>', methods=["PATCH"])
@@ -188,7 +191,7 @@ def users_update(user_id):
             'text': "Wrong password, please try again.",
             'status': 'danger'
         })
-    return render_template('users/edit.html', form=form, user_id=found_user.id)
+    return redirect(url_for('users_show', user_id=user_id))
 
 
 @app.route('/users/<int:user_id>', methods=["DELETE"])
@@ -266,7 +269,10 @@ def like_messages_show(user_id):
     found_user = User.query.get_or_404(user_id)
 
     return render_template(
-        'users/like.html', user=found_user, messages=found_user.likes)
+        'users/like.html',
+        user=found_user,
+        messages=found_user.likes,
+        form=UserForm(obj=found_user))
 
 
 @app.route('/')

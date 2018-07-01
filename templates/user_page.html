@@ -25,17 +25,76 @@
               <a href="{{ url_for('users_followers', user_id=user.id) }}">{{ user.followers.count() }}</a>
             </h4>
           </li>
+          {% if current_user.is_authenticated %}
           <li class="stat">
             <p class="small">Likes</p>
             <h4>
                 <a href="{{ url_for('like_messages_show', user_id=user.id) }}">{{current_user.num_likes()}}</a></h4>
           </li>
+          {% endif %}
           <div class="ml-auto">
             {% if current_user.id == user.id %}
-              <a href="{{ url_for('users_edit', user_id=user.id) }}" class="btn btn-outline-secondary">Edit Profile</a>
-              <form method="POST" action="{{url_for('users_show', user_id=user.id)}}?_method=DELETE" class="form-inline">
-                <input type="submit" value="Delete Profile" class="btn btn-outline-danger ml-2">
-              </form>
+             
+              <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#editprofile">
+                  Edit Profile
+                </button>
+
+              <div class="modal fade" id="editprofile" tabindex="-1" role="dialog" aria-labelledby="editprofileTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h2 class="modal-title mt-3 ml-3">Edit Your Profile.</h2>
+                     
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="row justify-content-md-center">
+  
+                              {% include "users/edit.html" %}
+     
+                            </div>
+                      </div>
+                      
+                    </div>
+                  </div>
+                </div>
+
+
+              
+                <button type="button" class="btn btn-outline-danger ml-2" data-toggle="modal" data-target="#deleteprofile">
+                    Delete Profile
+                  </button>
+  
+                <div class="modal fade" id="deleteprofile" tabindex="-1" role="dialog" aria-labelledby="deleteprofileTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h2 class="modal-title mt-3 ml-3 text-center">Are you sure you want to delete your account?</h2>
+                       
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row justify-content-md-center">
+                         
+                                <form method="POST" action="{{url_for('users_show', user_id=user.id)}}?_method=DELETE" class="form-inline">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <input type="submit" value="Yes" class="btn btn-outline-danger ml-2">
+                                    
+                                  </form>
+       
+                              </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+
+
             {% elif current_user.is_authenticated %}
               {% if current_user.is_following(user) %}
                 <form method="POST" action="{{url_for('followers_destroy', follower_id=user.id)}}?_method=DELETE">
