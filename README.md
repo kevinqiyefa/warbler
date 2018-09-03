@@ -1,5 +1,7 @@
 # Warbler
 
+![Warbler Gif](warbler.gif)
+
 A Twitter clone with a Rithm spin.
 
 [Live site](https://warbler-app.herokuapp.com/)
